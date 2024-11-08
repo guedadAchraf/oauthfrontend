@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import {OAuthService} from "angular-oauth2-oidc";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
   selector: 'app-root',
@@ -9,5 +11,25 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'webapp';
+  helloText = '';
+
+  constructor(private oauthService: OAuthService, private httpClient: HttpClient) {
+  }
+
+  logout() {
+    this.oauthService.logOut();
+  }
+
+  getHelloText() {
+    this.httpClient.get<{ message: string }>('http://localhost:8080/hello', {
+      headers: {
+        'Authorization': `Bearer ${this.oauthService.getAccessToken()}`
+      }
+    }
+    ).subscribe(result => {
+      this.helloText = result.message;
+    });
+  }
+
+
 }
